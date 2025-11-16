@@ -8,13 +8,19 @@
     <style>
         body {
             margin: 0;
-            padding: 0;
+            padding: 40px 0;
             font-family: "Poppins", sans-serif;
             background: linear-gradient(135deg, #ffdde1, #ee9ca7);
             color: #b30059;
             min-height: 100vh;
-            overflow-x: hidden;  /* agar horizontal tidak scroll */
-            overflow-y: auto;    /* agar halaman bisa scroll */
+
+            /* BIAR TENGAH */
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+
+            overflow-x: hidden;
         }
 
         .container {
@@ -22,9 +28,12 @@
             max-width: 750px;
             background: white;
             padding: 40px;
+            margin: 20px auto;
+
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             border-radius: 25px;
             animation: fadeIn 1.2s ease;
+
             text-align: center;
             position: relative;
             z-index: 5;
@@ -38,6 +47,8 @@
             border-right: 3px solid #ff4d88;
             white-space: nowrap;
             width: 0;
+            margin-left: auto;
+            margin-right: auto;
             animation: typing 3s steps(40) forwards, blink 0.7s step-end infinite;
         }
 
@@ -60,8 +71,8 @@
             border-radius: 12px;
             cursor: pointer;
             transition: 0.3s;
-            z-index: 50;        /* PERBAIKAN */
-            position: relative; /* PERBAIKAN */
+            z-index: 50;
+            position: relative;
         }
 
         button:hover {
@@ -119,6 +130,7 @@
 </head>
 
 <body>
+
     <div class="container">
         <h1 id="title">Kica, My Eepylipi ❤️</h1>
 
