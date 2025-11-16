@@ -1,47 +1,242 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>For You ❤️</title>
   <style>
+    /* ---------- Reset + font ---------- */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html,body { height: 100%; }
     body {
-      font-family: Arial, sans-serif;
-      background: #ffe6ec;
-      text-align: center;
-      padding: 50px;
+      font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(180deg, #fff0f6 0%, #ffe6ec 50%, #fff9fb 100%);
+      overflow: hidden; /* hide overflowing hearts outside viewport */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      color: #2b2b2b;
     }
+
+    /* ---------- Center card ---------- */
     .card {
-      background: white;
-      padding: 30px;
+      width: min(920px, 96%);
+      max-width: 920px;
+      background: rgba(255,255,255,0.85);
       border-radius: 20px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      padding: 36px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      text-align: center;
+      position: relative;
+      z-index: 10; /* above hearts */
+      backdrop-filter: blur(6px);
+      transition: transform .5s cubic-bezier(.2,.9,.3,1);
+    }
+    .card:hover { transform: translateY(-6px); }
+
+    h1 { color: #ff4d79; font-size: 2.2rem; margin-bottom: 6px; }
+    h2 { color: #ff3360; font-size: 1.15rem; margin: 6px 0 18px; font-weight: 600; }
+    p { color: #444; font-size: 1rem; margin-bottom: 18px; line-height: 1.5; }
+
+    .btn {
       display: inline-block;
-    }
-    h1 { color: #ff4d79; }
-    p { font-size: 18px; }
-    button {
-      background: #ff4d79;
-      border: none;
+      background: linear-gradient(90deg,#ff4d79,#ff6a8f);
       color: white;
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-size: 16px;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-size: 15px;
       cursor: pointer;
+      box-shadow: 0 6px 18px rgba(255,77,121,0.18);
+      user-select: none;
     }
-    button:hover {
-      background: #ff335f;
+    .btn:active { transform: translateY(2px); }
+
+    /* small footer note */
+    .meta { margin-top: 16px; font-size: 0.9rem; color:#666; }
+
+    /* ---------- Falling hearts ---------- */
+    .heart {
+      position: fixed;
+      top: -60px; /* start above viewport */
+      width: 28px;
+      height: 28px;
+      pointer-events: none;
+      z-index: 5;
+      opacity: 0.95;
+      transform-origin: center;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 4px 10px rgba(255,77,121,0.18));
     }
+
+    /* heart shape using pseudo element inside SVG heart is easier — we use inline SVG in JS */
+    /* animations */
+    @keyframes fall {
+      0% {
+        transform: translateY(-20vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% { opacity: 1; }
+      60% { opacity: 1; }
+      100% {
+        transform: translateY(120vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes sway {
+      0% { transform: translateX(0) rotate(-10deg); }
+      50% { transform: translateX(40px) rotate(10deg); }
+      100% { transform: translateX(0) rotate(-10deg); }
+    }
+
+    /* different sizes/styles via classes */
+    .heart.s1 { width:20px; height:20px; opacity:0.95; }
+    .heart.s2 { width:28px; height:28px; opacity:1; }
+    .heart.s3 { width:36px; height:36px; opacity:0.9; }
+
+    /* animation applied inline by JS with randomized duration/delay and horizontal position */
   </style>
 </head>
 <body>
 
-<div class="card">
-  <h1>Hi Sayang ❤️</h1>
-  <p>Aku buat website kecil ini cuma buat bilang...</p>
-  <h2>Kamu spesial buat aku ✨</h2>
-  <p>Terima kasih sudah hadir di hidupku.</p>
-  <button onclick="alert('I love you 😘')">Klik ini</button>
-</div>
+  <div class="card" id="card">
+    <h1>Untuk Kamu ❤️</h1>
+    <p>Aku buat halaman kecil ini cuma untuk kasih tahu kalau kamu spesial. Klik tombol untuk membuat hujan hati! 💌</p>
+    <button class="btn" id="toggleHearts">Mulai Hujan Hati</button>
 
+    <h2 id="message">Kamu membuat hariku lebih cerah ✨</h2>
+    <p class="meta">Tip: klik tombol lagi untuk berhenti.</p>
+  </div>
+
+  <script>
+    // ---------- Settings ----------
+    const spawnInterval = 300; // ms between new hearts
+    const maxHearts = 140; // safety cap
+    let running = false;
+    let heartsCount = 0;
+    let spawnTimer = null;
+
+    const heartSVG = (color="#ff4d79") => {
+      // simple SVG heart (scalable)
+      return `
+        <svg viewBox="0 0 32 29.6" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+          <path d="M23.6 0c-2.9 0-5.4 1.6-6.6 4.1C15.8 1.6 13.3 0 10.4 0 4.7 0 0 4.7 0 10.4 0 20.1 13.8 25.4 16 29.6c2.2-4.2 16-9.5 16-19.2C32 4.7 27.3 0 21.6 0z" fill="${color}"/>
+        </svg>
+      `;
+    };
+
+    function spawnHeart() {
+      if (heartsCount >= maxHearts) return;
+      heartsCount++;
+
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+
+      // random size class
+      const sz = Math.random();
+      heart.classList.add(sz < 0.5 ? 's2' : (sz < 0.82 ? 's1' : 's3'));
+
+      // random horizontal position
+      const left = Math.random() * 100; // percent
+      heart.style.left = left + 'vw';
+
+      // random color slight variation
+      const colors = ['#ff4d79','#ff6a8f','#ff2e63','#ff7aa2','#ff9bbf'];
+      const color = colors[Math.floor(Math.random()*colors.length)];
+      heart.innerHTML = heartSVG(color);
+
+      // duration + delay
+      const duration = 4000 + Math.random() * 4200; // 4s - 8.2s
+      const delay = Math.random() * 600;
+
+      // horizontal sway using CSS animation on a child wrapper via transform will be combined with fall via JS
+      // apply the fall animation using inline style
+      heart.style.animation = `fall ${duration}ms linear ${delay}ms forwards`;
+
+      // add a slight sway with a CSS animation applied to the SVG path via transform origin trick:
+      const swayDuration = 2000 + Math.random()*3000;
+      heart.style.setProperty('--sway-duration', swayDuration + 'ms');
+
+      // random rotate start
+      const rotateStart = (Math.random()*40) - 20;
+      heart.style.transform = `rotate(${rotateStart}deg)`;
+
+      // add small horizontal oscillation (sway) via requestAnimationFrame
+      let start = null;
+      const swayAmp = 30 + Math.random()*40; // px
+      const swaySpeed = 0.6 + Math.random()*1.2; // multiplier
+      const leftPx = (left/100) * (window.innerWidth);
+
+      // Append to body
+      document.body.appendChild(heart);
+
+      // Animate sway & slight rotation using rAF for smoother movement
+      function animateSway(timestamp) {
+        if (!start) start = timestamp;
+        const t = (timestamp - start) / 1000 * swaySpeed;
+        const x = Math.sin(t * Math.PI * 1.2) * swayAmp;
+        const rotate = Math.sin(t) * 12;
+        heart.style.transform = `translateX(${x}px) rotate(${rotateStart + rotate}deg)`;
+        // stop if heart is gone from DOM
+        if (document.body.contains(heart)) {
+          requestAnimationFrame(animateSway);
+        }
+      }
+      requestAnimationFrame(animateSway);
+
+      // remove after animation ends
+      setTimeout(() => {
+        if (heart && heart.parentElement) heart.parentElement.removeChild(heart);
+        heartsCount--;
+      }, duration + delay + 100);
+
+      // safety: remove if too many
+      if (heartsCount > maxHearts) {
+        // remove oldest heart(s)
+        const olds = document.querySelectorAll('.heart');
+        if (olds.length) olds[0].remove();
+      }
+    }
+
+    function startHearts() {
+      if (running) return;
+      running = true;
+      spawnTimer = setInterval(spawnHeart, spawnInterval);
+      document.getElementById('toggleHearts').textContent = 'Hentikan Hujan Hati';
+      // spawn a few immediate hearts for instant effect
+      for (let i=0;i<6;i++) setTimeout(spawnHeart, i*80);
+    }
+
+    function stopHearts() {
+      running = false;
+      clearInterval(spawnTimer);
+      spawnTimer = null;
+      document.getElementById('toggleHearts').textContent = 'Mulai Hujan Hati';
+    }
+
+    // button toggle
+    document.getElementById('toggleHearts').addEventListener('click', () => {
+      running ? stopHearts() : startHearts();
+    });
+
+    // optional: start automatically (uncomment to enable auto start)
+    // startHearts();
+
+    // Accessibility: stop hearts when user leaves tab to save CPU
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        clearInterval(spawnTimer);
+      } else {
+        if (running && !spawnTimer) spawnTimer = setInterval(spawnHeart, spawnInterval);
+      }
+    });
+
+    // Recalculate positions on resize (not strictly necessary but safe)
+    window.addEventListener('resize', () => {
+      // nothing to do specifically; hearts use vw so they'll reposition naturally
+    });
+  </script>
 </body>
 </html>
