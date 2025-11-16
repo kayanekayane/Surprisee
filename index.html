@@ -214,7 +214,7 @@
       if (running) return;
       running = true;
       spawnTimer = setInterval(spawnHeart, spawnInterval);
-      document.getElementById('toggleHearts').textContent = 'Hentikan Hujan Hati';
+      document.getElementById('toggleHearts').textContent = 'Stop the Rain';
       // spawn a few immediate hearts for instant effect
       for (let i=0;i<6;i++) setTimeout(spawnHeart, i*80);
     }
@@ -223,7 +223,7 @@
       running = false;
       clearInterval(spawnTimer);
       spawnTimer = null;
-      document.getElementById('toggleHearts').textContent = 'Mulai Hujan Hati';
+      document.getElementById('toggleHearts').textContent = 'Click this to Start a Surprise!!';
     }
 
     // button toggle
