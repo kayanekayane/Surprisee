@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk Kamu, My Love ❤️</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+            color: #b30059;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 750px;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-radius: 25px;
+            animation: fadeIn 1.2s ease;
+            text-align: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+            margin-bottom: 20px;
+            color: #ff4d88;
+            overflow: hidden;
+            border-right: 3px solid #ff4d88;
+            white-space: nowrap;
+            width: 0;
+            animation: typing 3s steps(40) forwards, blink 0.7s step-end infinite;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: #770040;
+            text-align: left;
+            margin-top: 20px;
+            white-space: pre-line;
+        }
+
+        button {
+            margin-top: 35px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border: none;
+            background: #ff4d79;
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 5;
+        }
+
+        button:hover {
+            background: #e60055;
+            transform: scale(1.05);
+        }
+
+        /* Heart Rain */
+        .heart {
+            position: fixed;
+            top: -10px;
+            color: #ff4d88;
+            font-size: 20px;
+            animation: fall linear forwards;
+            opacity: 0.9;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh);
+                opacity: 0;
+            }
+        }
+
+        /* Typing Effect */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        /* Popup */
+        .popup {
+            position: fixed;
+            bottom: -200px;
+            right: 20px;
+            background: #ff4d79;
+            color: white;
+            padding: 20px 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            font-size: 1rem;
+            animation: slideUp 0.8s forwards;
+            z-index: 999;
+        }
+
+        @keyframes slideUp {
+            to { bottom: 20px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="title">Untuk Kamu, My Eepylipi ❤️</h1>
+
+        <p>
+Sayang, aku buat halaman ini khusus untuk kamu, karena aku ingin kamu tahu betapa berharganya kamu dalam hidupku. 
+Kadang aku susah menjelaskan dengan kata–kata secara langsung, jadi aku mencoba menuliskannya di sini—biar kamu bisa baca kapan pun kamu ingin, kapan pun kamu rindu, dan kapan pun kamu ingin mengingat bahwa ada seseorang yang sayang sama kamu sedalam ini.
+
+Kamu itu bukan cuma seseorang yang datang lalu pergi. Kamu itu seseorang yang membawa warna, tawa, dan rasa nyaman yang tidak pernah aku temukan di tempat lain. Setiap kali kamu cerita, ketawa, atau bahkan ngambek, semuanya itu selalu bikin hariku jadi lebih hidup.
+
+Aku benar-benar bersyukur bisa ketemu kamu, bisa kenal kamu, bisa sayang sama kamu. 
+Terima kasih sudah selalu ada, sudah mau menerima aku, sudah mau bertahan sama aku, dan sudah jadi alasan kenapa aku terus berusaha jadi lebih baik setiap hari.
+
+Aku harap halaman sederhana ini bisa sedikit menggambarkan betapa besarnya rasa sayangku ke kamu.
+Dan semoga ini bisa jadi kenangan kecil yang manis antara kita berdua.
+
+I love you, always. ❤️
+        </p>
+
+        <button onclick="window.location.href='index.html'">Kembali ke Halaman Utama</button>
+    </div>
+
+    <!-- Popup Lucu -->
+    <div class="popup" id="popup" style="display:none;">
+        Hehe sayang, kamu lucu banget baca ini 😘
+    </div>
+
+    <script>
+        /* HEART RAIN */
+        function createHeart() {
+            const heart = document.createElement("div");
+            heart.classList.add("heart");
+            heart.innerHTML = "❤️";
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.fontSize = (15 + Math.random() * 20) + "px";
+            heart.style.animationDuration = (3 + Math.random() * 3) + "s";
+
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }
+        setInterval(createHeart, 300);
+
+        /* POPUP DELAY */
+        setTimeout(() => {
+            document.getElementById("popup").style.display = "block";
+        }, 2500);
+    </script>
+
+</body>
+</html>
